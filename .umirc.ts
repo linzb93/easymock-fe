@@ -3,6 +3,8 @@ import { IConfig } from 'umi-types';
 // ref: https://umijs.org/config/
 const config: IConfig =  {
   treeShaking: true,
+  history: 'hash',
+  publicPath: "",
   routes: [
     {
       path: '/',
@@ -34,7 +36,6 @@ const config: IConfig =  {
       dva: true,
       dynamicImport: { webpackChunkName: true },
       title: 'easymock-fe',
-      dll: true,
       locale: {
         enable: true,
         default: 'en-US',
