@@ -1,10 +1,7 @@
 import React, {PureComponent} from 'react';
 import {Button, Select, message, Form, Input, Row, Col, Card} from 'antd';
 import { connect } from 'dva';
-import AceEditor from "react-ace";
-import "ace-builds/src-noconflict/mode-json";
-import "ace-builds/src-noconflict/theme-monokai";
-import "ace-builds/webpack-resolver";
+import MonacoEditor from 'react-monaco-editor';
 import {AnyObject} from '@/utils/interface';
 import styles from './index.css';
 
@@ -160,16 +157,13 @@ class Editor extends PureComponent<Props, State> {
           </Card>
         </div>
         <div className={styles['code-con']}>
-          <AceEditor
-            mode="json"
-            theme="monokai"
-            fontSize={16}
-            width="100%"
+          <MonacoEditor
+            width="800"
             height="100%"
-            wrapEnabled={true}
-            showPrintMargin={false}
-            setOptions={{
-              tabSize: 2
+            language="javascript"
+            theme="vs-dark"
+            options={{
+              fontSize: 16
             }}
             value={data.code}
             onChange={this.changeCode}

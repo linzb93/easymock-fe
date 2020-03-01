@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "start": "umi dev",
-    "build": "umi build",
+    "build": "umi build && cp -R dist ../easymock-v2/static",
     "test": "umi test",
     "lint": "eslint {src,mock,tests}/**/*.{ts,tsx} --fix",
     "precommit": "lint-staged"
@@ -13,10 +13,12 @@
     "antd": "^3.19.5",
     "axios": "^0.19.2",
     "dva": "^2.6.0-beta.6",
+    "monaco-editor": "^0.20.0",
     "qs": "^6.9.1",
     "react": "^16.8.6",
     "react-ace": "^8.0.0",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "react-monaco-editor": "^0.34.0"
   },
   "devDependencies": {
     "@types/jest": "^23.3.12",
