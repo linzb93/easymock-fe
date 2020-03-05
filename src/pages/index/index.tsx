@@ -1,31 +1,31 @@
-import React, {PureComponent} from 'react';
+import React, {SFC, useState, ReactNode} from 'react';
 import {Table, Button, message} from 'antd';
-import { connect } from 'dva';
+import { useDispatch } from 'dva';
+import {useMount} from 'react-use';
 import CreateModal from './components/Create';
 import ImportModal from './components/Import';
 import {Link} from 'react-router-dom';
-import {AnyObject} from '@/utils/interface';
+import {IDispatch} from '@/utils/interface';
 
-interface Props extends AnyObject {
-};
+interface TableItem {
+  title: string,
+  dataIndex?: string,
+  key?: string,
+  render?: (text: string, record: {project_id: string}) => ReactNode
+}
 
-class Index extends PureComponent<Props> {
-  constructor(props: any) {
-    super(props);
-  }
-  
-  public readonly state = {
-    data: [],
-    createModalVisible: false,
-    importModalVisible: false,
-    project_id: ''
-  };
-  
-  private columns = [
+const Index:SFC = () => {
+  const [createModalVisible, toggleCreateModalVisible] = useState(false); // 创建弹窗显示
+  const [importModalVisible, toggleImportModalVisible] = useState(false); // 导入弹窗显示
+  const [data, setData] = useState([]); // table数据
+  const dispatch: IDispatch = useDispatch();
+  const [project_id, setProjectId] = useState(''); // project_id
+
+  const columns:TableItem[] = [
     {
       title: '名称',
       dataIndex: 'title',
-      render: (text: string, record: AnyObject) => (
+      render: (text, record) => (
         <Link to={`/project/${record.project_id}`}>{text}</Link>
       )
     },
@@ -39,43 +39,37 @@ class Index extends PureComponent<Props> {
     },
     {
       title: '操作',
-      render: (text: string, record: AnyObject) => (
+      render: (_, record) => (
         <div className="table-opr-wrap">
-          <Button type="primary" size="small" onClick={() => {this.edit(record.project_id)}}>编辑</Button>
-          <Button type="danger" size="small" onClick={() => {this.delete(record.project_id)}}>删除</Button>
+          <Button type="primary" size="small" onClick={() => {edit(record.project_id)}}>编辑</Button>
+          <Button type="danger" size="small" onClick={() => {deleteItem(record.project_id)}}>删除</Button>
         </div>
       )
     }
-  ];
+  ]
 
-  componentDidMount() {
-    this.getProjectList();
-  }
+  useMount(() => {
+    getProjectList();
+  });
 
-  // 获取项目列表
-  getProjectList = () => {
-    const {dispatch} = this.props;
+  // 获取列表
+  function getProjectList() {
     dispatch({
       type: 'index/getProjectList'
     })
     .then((res: any) => {
-      this.setState({
-        data: res.data
-      });
+      setData(res.data);
     });
   }
-      
+
   // 编辑
-  edit = (id : string) => {
-    this.setState({
-      createModalVisible: true,
-      project_id: id
-    });
+  function edit(id: string) {
+    toggleCreateModalVisible(true);
+    setProjectId(id);
   }
-  
+
   // 删除
-  delete = (id : string) => {
-    const {dispatch} = this.props;
+  function deleteItem(id: string) {
     dispatch({
       type: 'index/deleteProject',
       payload: {
@@ -84,44 +78,30 @@ class Index extends PureComponent<Props> {
     })
     .then(() => {
       message.success('删除成功');
-      this.getProjectList();
-    });
-  }
-  
-  // 添加
-  add = () => {
-    this.setState({
-      createModalVisible: true
-    });
-  }
-  
-  // 导入项目
-  import = () => {
-    this.setState({
-      importModalVisible: true
+      getProjectList();
     });
   }
 
-  // 关闭弹窗
-  cancelModal = (name: string, reloaded?: boolean) => {
-    this.setState({
-      [name]: false
-    });
+  // 弹窗关闭
+  function changeModalVisible(name: 'create' | 'import', reloaded: boolean) {
+    if (name === 'create') {
+      toggleCreateModalVisible(false);
+    } else if (name === 'import') {
+      toggleImportModalVisible(false);
+    }
     if (reloaded) {
-      this.getProjectList();
+      getProjectList();
     }
   }
-      
-  render() {
-    const {data, createModalVisible, importModalVisible, project_id} = this.state;
-    return (
-      <div className="wrapper">
+
+  return (
+    <div className="wrapper">
       <div className="table-filter">
-        <Button type="primary" onClick={this.add}>添加项目</Button>
-        <Button type="primary" onClick={this.import}>导入项目</Button>
+        <Button type="primary" onClick={() => {toggleCreateModalVisible(true);}}>添加项目</Button>
+        <Button type="primary" onClick={() => {toggleImportModalVisible(true);}}>导入项目</Button>
       </div>
       <Table
-        columns={this.columns}
+        columns={columns}
         dataSource={data}
         pagination={false}
         rowKey="project_id"
@@ -129,18 +109,17 @@ class Index extends PureComponent<Props> {
       />
       {createModalVisible && (
         <CreateModal
-          onCancel={(reloaded: boolean) => {this.cancelModal('createModalVisible', reloaded)}}
+          onCancel={(reloaded: boolean) => {changeModalVisible('create', reloaded)}}
           project_id={project_id}
         />
       )}
       {importModalVisible && (
         <ImportModal
-          onCancel={(reloaded: boolean) => {this.cancelModal('importModalVisible', reloaded)}}
+          onCancel={(reloaded: boolean) => {changeModalVisible('import', reloaded)}}
         />
       )}
     </div>
-    )
-  }
+  )
 }
 
-export default connect()(Index);
+export default Index;

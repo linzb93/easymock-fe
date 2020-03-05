@@ -1,26 +1,24 @@
-import React, {PureComponent} from 'react';
+import React, {SFC, useState, useEffect} from 'react';
 import {Form, Modal, Button, Input, message} from 'antd';
-import { connect } from 'dva';
+import { useDispatch } from 'dva';
+import {useMount} from 'react-use';
 import { FormComponentProps } from 'antd/es/form';
-import {AnyObject} from '@/utils/interface';
+import {AnyObject, IDispatch} from '@/utils/interface';
 
 const FormItem = Form.Item;
 
-interface Props extends FormComponentProps, AnyObject {
+interface Props extends FormComponentProps {
   project_id?: string,
   onCancel(b?: boolean): void
 };
 
-interface State {
-  data: Object
-}
+const CreateModal:SFC<Props> = props => {
+  const {project_id, onCancel, form: {getFieldDecorator, validateFields}} = props;
+  const dispatch: IDispatch = useDispatch();
+  const [data, setData]: [AnyObject, Function] = useState({});
+  const preTitle = project_id ? '修改' : '添加';
 
-class CreateModal extends PureComponent<Props, State> {
-  public state = {
-    data: {}
-  }
-  componentDidMount() {
-    const {project_id, dispatch} = this.props;
+  useMount(() => {
     if (project_id) {
       dispatch({
         type: 'index/getProjectDetail',
@@ -29,17 +27,14 @@ class CreateModal extends PureComponent<Props, State> {
         }
       })
       .then((res: AnyObject) => {
-        this.setState({
-          data: res.data
-        })
+        setData(res.data);
       })
     }
-  }
+  });
 
   // 提交
-  submit = () => {
-    const {project_id, dispatch, form: {validateFields}} = this.props;
-    validateFields((err: ErrorEvent, values: AnyObject) => {
+  function submit() {
+    validateFields((err, values: object) => {
       if (err) {
         return;
       }
@@ -53,7 +48,7 @@ class CreateModal extends PureComponent<Props, State> {
         })
         .then(() => {
           message.success('修改成功');
-          this.onCancel(true);
+          onCancel(true);
         })
       } else {
         dispatch({
@@ -62,66 +57,53 @@ class CreateModal extends PureComponent<Props, State> {
         })
         .then(() => {
           message.success('添加成功');
-          this.onCancel(true);
+          onCancel(true);
         })
       }
     })
   }
 
-  // 关闭弹窗
-  onCancel = (submitted?: boolean): void => {
-    const {onCancel} = this.props;
-    if (typeof onCancel === 'function') {
-      onCancel(submitted);
-    }
-  }
-  
-  render() {
-    const {form: {getFieldDecorator}, project_id} = this.props;
-    const {data}:{data: AnyObject} = this.state;
-    const preTitle = project_id ? '修改' : '添加';
-    return (
-      <Modal
-        title={`${preTitle}项目`}
-        visible
-        onCancel={() => {this.onCancel(false)}}
-        footer={[
-          <Button type="primary" key="submit" onClick={this.submit}>{preTitle}</Button>,
-          <Button onClick={() => {this.onCancel(false)}} key="cancel">取消</Button>
-        ]}
-      >
-        <Form>
-          <FormItem label="标题">
-            {getFieldDecorator('title', {
-              rules: [
-                {
-                  required: true,
-                  message: '请输入标题'
-                }
-              ],
-              initialValue: data.title
-            })(
-              <Input />
-            )}
-          </FormItem>
-          <FormItem label="前缀">
-            {getFieldDecorator('prefix', {
-              initialValue: data.prefix
-            })(
-              <Input />
-            )}
-          </FormItem>
-          <FormItem label="简介">
-            {getFieldDecorator('desc', {
-              initialValue: data.desc
-            })(
-              <Input />
-            )}
-          </FormItem>
-        </Form>
-      </Modal>
-    )
-  }
+  return (
+    <Modal
+      title={`${preTitle}项目`}
+      visible
+      onCancel={() => {onCancel(false)}}
+      footer={[
+        <Button type="primary" key="submit" onClick={submit}>{preTitle}</Button>,
+        <Button onClick={() => {onCancel(false)}} key="cancel">取消</Button>
+      ]}
+    >
+      <Form>
+        <FormItem label="标题">
+          {getFieldDecorator('title', {
+            rules: [
+              {
+                required: true,
+                message: '请输入标题'
+              }
+            ],
+            initialValue: data.title
+          })(
+            <Input />
+          )}
+        </FormItem>
+        <FormItem label="前缀">
+          {getFieldDecorator('prefix', {
+            initialValue: data.prefix
+          })(
+            <Input />
+          )}
+        </FormItem>
+        <FormItem label="简介">
+          {getFieldDecorator('desc', {
+            initialValue: data.desc
+          })(
+            <Input />
+          )}
+        </FormItem>
+      </Form>
+    </Modal>
+  )
 }
 
-export default Form.create<Props>()(connect()(CreateModal));
+export default Form.create<Props>()(CreateModal);

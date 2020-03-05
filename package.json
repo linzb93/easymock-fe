@@ -18,7 +18,8 @@
     "react": "^16.8.6",
     "react-ace": "^8.0.0",
     "react-dom": "^16.8.6",
-    "react-monaco-editor": "^0.34.0"
+    "react-monaco-editor": "^0.34.0",
+    "react-use": "^13.27.0"
   },
   "devDependencies": {
     "@types/jest": "^23.3.12",

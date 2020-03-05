@@ -1,16 +1,18 @@
-import React, {PureComponent} from 'react';
-import {Table, Button, message, Typography, Tag} from 'antd';
-import { connect } from 'dva';
+import React, {SFC, useState} from 'react';
+import {Table, Button, message, Typography, Tag, Form, Input} from 'antd';
+import { useDispatch } from 'dva';
+import {useMount} from 'react-use';
 import router from 'umi/router';
 import copy from 'copy-to-clipboard';
 import Preview from './components/Preview';
-import {AnyObject} from '@/utils/interface';
+import {useTable} from '@/utils/hooks';
+import {AnyObject,IDispatch} from '@/utils/interface';
 import {exportApi} from '@/services/project';
 
 const {Text, Paragraph, Title} = Typography;
 
-function TypeTag({type}:{type:string}) {
-   const typeMap: AnyObject= {
+function TypeTag({type}:{type:'get'|'post'|'delete'|'patch'|'put'}) {
+  const typeMap = {
     get: 'blue',
     post: 'green',
     delete: 'red',
@@ -22,36 +24,24 @@ function TypeTag({type}:{type:string}) {
 
 interface Props extends AnyObject {
 }
-interface State {
-  meta: AnyObject,
-  data: AnyObject,
-  pagination: AnyObject,
-  previewModalVisible: boolean,
-  project_id: string,
-  api_id: string,
-  fetch_type: string
-}
 
-class List extends PureComponent<Props, State> {
-  constructor(props: any) {
-    super(props);
-  }
-  state = {
-    meta: {},
-    data: {
-      list:[],
-      total: 0
+const List:SFC<Props> = props => {
+  const {form: {getFieldsValue, getFieldDecorator}, match} = props;
+  const {project_id} = match.params;
+  const dispatch: IDispatch = useDispatch();
+  const { fresh, search, ...tableProps } = useTable({
+    type: 'project/getApiPage',
+    payload: {
+      project_id
     },
-    pagination: {
-      size: 10,
-      current: 1
-    },
-    previewModalVisible: false,
-    project_id: '',
-    api_id: '',
-    fetch_type: ''
-  }
-  columns = [
+    pageSize: 5
+  });
+  
+  const [meta, setMeta]: [AnyObject, Function] = useState({});
+  const [previewModalVisible, togglePreviewModalVisible] = useState(false);
+  const [api_id, setApiId] = useState('');
+  
+  const columns = [
     {
       title: '名称',
       dataIndex: 'title',
@@ -72,94 +62,49 @@ class List extends PureComponent<Props, State> {
       title: '操作',
       render: (text: string, record: AnyObject) => (
         <div className="table-opr-wrap">
-          <Button type="primary" size="small" onClick={() => {this.edit(record.id)}}>编辑</Button>
-          <Button type="primary" size="small" onClick={() => {this.preview(record.id, record.type)}}>预览</Button>
-          <Button type="primary" size="small" onClick={() => {this.clone(record.id)}}>克隆</Button>
-          <Button type="primary" size="small" onClick={() => {this.copyToClipboard(record.url)}}>复制接口地址</Button>
-          <Button type="danger" size="small" onClick={() => {this.delete(record.id)}}>删除</Button>
+          <Button type="primary" size="small" onClick={() => {edit(record.id)}}>编辑</Button>
+          <Button type="primary" size="small" onClick={() => {preview(record.id)}}>预览</Button>
+          <Button type="primary" size="small" onClick={() => {clone(record.id)}}>克隆</Button>
+          <Button type="primary" size="small" onClick={() => {copyToClipboard(record.url)}}>复制接口地址</Button>
+          <Button type="danger" size="small" onClick={() => {deleteItem(record.id)}}>删除</Button>
         </div>
       )
     }
-  ]
+  ];
 
-  componentDidMount() {
-    const {dispatch, match} = this.props;
-    const {project_id} = match.params
+  useMount(() => {
     dispatch({
       type: 'index/getProjectDetail',
       payload: {
         project_id
       }
     })
-    .then((res: AnyObject) => {
-      this.setState({
-        project_id,
-        meta: {
-          ...res.data,
-          prefix: `${project_id}${res.data.prefix}`
-        }
-      }, () => {
-        this.fetchList();
-      })
+    .then((res: any) => {
+      setMeta({
+        ...res.data,
+        prefix: `${project_id}${res.data.prefix}`
+      });
     });
-  }
-
-  // 获取接口分页
-  fetchList = () => {
-    const {dispatch} = this.props;
-    const {project_id, pagination: {current, size}} = this.state;
-    dispatch({
-      type: 'project/getApiPage',
-      payload: {
-        project_id,
-        page: current,
-        size
-      }
-    })
-    .then((res: AnyObject) => {
-      this.setState({
-        data: res.data
-      })
-    })
-  }
-
-  // 触发分页事件
-  changePaginationCurrent = (current: number) => {
-    this.setState((prevState: State) => ({
-      pagination: {
-        ...prevState.pagination,
-        current
-      }
-    }), () => {
-      this.fetchList();
-    });
-  }
+  });
 
   // 复制项目地址
-  copyToClipboard = (url: string) => {
-    const {meta}: {meta: AnyObject} = this.state;
+  function copyToClipboard (url: string) {
     copy(`${window.location.hostname}:4000/mock/${meta.prefix}${url}`);
     message.success('接口复制成功');
-    
   }
 
   // 添加接口
-  add = () => {
-    const {project_id} = this.state;
-    console.log(`/project/${project_id}/create`);
+  function add () {
     router.push(`/project/${project_id}/create`);
   };
 
   // 编辑接口
-  edit = (id: string) => {
-    const {project_id} = this.state;
+  function edit (id: string) {
     router.push(`/project/${project_id}/update/${id}`);
   }
 
   // 删除接口
-  delete = (id: string) => {
-    const {dispatch} = this.props;
-    const {project_id} = this.state;
+  function deleteItem (id: string) {
     dispatch({
       type: 'project/deleteApi',
       payload: {
@@ -169,24 +114,18 @@ class List extends PureComponent<Props, State> {
     })
     .then(() => {
       message.success('删除成功');
-      this.fetchList();
+      fresh();
     })
   }
 
   // 预览接口
-  preview = (api_id: string, type: string) => {
-    this.setState({
-      previewModalVisible: true,
-      api_id,
-      fetch_type: type
-    })
+  function preview (api_id: string) {
+    togglePreviewModalVisible(true);
+    setApiId(api_id);
   }
 
   // 复制接口
-  clone = (api_id: string) => {
-    const {dispatch} = this.props;
-    const {project_id} = this.state;
-    
+  function clone (api_id: string) {
     dispatch({
       type: 'project/cloneApi',
       payload: {
@@ -196,13 +135,11 @@ class List extends PureComponent<Props, State> {
     })
     .then(() => {
       message.success('复制成功');
-      this.fetchList();
     });
   }
 
   // 导出所有接口
-  export = () => {
-    const {project_id} = this.state;
+  function exportProject () {
     const url = exportApi({
       project_id
     });
@@ -216,51 +153,46 @@ class List extends PureComponent<Props, State> {
       document.getElementsByTagName('head')[0].appendChild(iframe);
     }
   }
-  
-  render() {
-    const {
-      data,
-      previewModalVisible,
-      project_id,
-      api_id,
-      fetch_type,
-      meta,
-      pagination
-    }: {meta: AnyObject, [p:string]: any} = this.state;
-    return (
-      <div className="wrapper">
-        <Title style={{marginTop: 20}}>{meta.title}</Title>
-        <Paragraph>接口前缀：<Text copyable>{`http://${window.location.hostname}:4000/mock/${meta.prefix}`}</Text></Paragraph>
-        <Paragraph>项目id：{project_id}</Paragraph>
-        <div className="table-filter">
-          <Button type="primary" onClick={this.add}>添加接口</Button>
-          <Button type="primary" onClick={this.export}>导出接口</Button>
-        </div>
-        <Table
-          dataSource={data.list}
-          columns={this.columns}
-          rowKey="id"
-          pagination={{
-            total: data.total,
-            showTotal: total => `共有 ${total} 条记录`,
-            pageSize: pagination.size,
-            onChange: this.changePaginationCurrent,
-            current: pagination.current,
-            defaultCurrent: pagination.current,
-          }}
-          bordered
-        />
-        {previewModalVisible && (
-          <Preview
-            project_id={project_id}
-            api_id={api_id}
-            type={fetch_type}
-            onCancel={() => {this.setState({previewModalVisible: false})}}
-          />
-        )}
-      </div>
-    )
+
+  // 提交
+  function submit(e: any) {
+    e.preventDefault();
+    search(getFieldsValue());
   }
+
+  return (
+    <div className="wrapper">
+      <Title style={{marginTop: 20}}>{meta.title}</Title>
+      <Paragraph>接口前缀：<Text copyable>{`http://${window.location.hostname}:4000/mock/${meta.prefix}`}</Text></Paragraph>
+      <Paragraph>项目id：{project_id}</Paragraph>
+      <Form onSubmit={submit}>
+        <Form.Item label="测试输入">
+          {getFieldDecorator('name')(
+            <Input style={{width: 200}} />
+          )}
+        </Form.Item>
+        <Form.Item>
+          <Button htmlType="submit">提交</Button>
+        </Form.Item>
+      </Form>
+      <div className="table-filter">
+        <Button type="primary" onClick={add}>添加接口</Button>
+        <Button type="primary" onClick={exportProject}>导出接口</Button>
+      </div>
+      <Table
+        columns={columns}
+        rowKey="id"
+        {...tableProps}
+      />
+      {previewModalVisible && (
+        <Preview
+          project_id={project_id}
+          api_id={api_id}
+          onCancel={() => {togglePreviewModalVisible(false)}}
+        />
+      )}
+    </div>
+  )
 }
 
-export default connect()(List);
+export default Form.create()(List);

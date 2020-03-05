@@ -7,9 +7,14 @@ export interface AnyObject {
 // redux modal
 export interface ModelType {
   namespace: string;
-  state: any;
+  state: object;
   effects: {
     [name: string]: Effect;
   };
-  reducers: any
+  reducers: object
+}
+
+// 组件里面的dispatch
+export interface IDispatch {
+  ({type, payload}: {type: string, payload?: object}): Promise<object>
 }

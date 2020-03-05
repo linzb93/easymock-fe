@@ -1,6 +1,5 @@
 import {stringify} from 'qs';
 import service, {baseURL} from '../utils/request';
-import {AnyObject} from '@/utils/interface';
 
 /**
  * 项目
@@ -11,23 +10,23 @@ export function getProjectList() {
   return service.get('/project/list');
 }
 // 创建项目
-export function createProject(params: AnyObject) {
+export function createProject(params: object) {
   return service.post('/project/create', {
     ...params
   });
 }
 // 编辑项目
-export function updateProject(params: AnyObject) {
+export function updateProject(params: object) {
   return service.post('/project/update', {
     ...params
   });
 }
 // 获取项目详情
-export function getProjectDetail(params: AnyObject) {
+export function getProjectDetail(params: object) {
   return service.get(`/project/detail?${stringify(params)}`);
 }
 // 删除项目
-export function deleteProject(params: AnyObject) {
+export function deleteProject(params: object) {
   return service.post('/project/delete', {
     ...params
   });
@@ -36,6 +35,6 @@ export function deleteProject(params: AnyObject) {
 export const uploadProjectUrl = `${baseURL}/project/upload`;
 
 // 文件下载
-export function fileDownload(params: AnyObject) {
+export function fileDownload(params: object) {
   return `${baseURL}/download?${stringify(params)}`
 }
