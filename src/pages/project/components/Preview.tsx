@@ -2,10 +2,12 @@ import React, {SFC, useState} from 'react';
 import {Modal} from 'antd';
 import { useDispatch } from 'dva';
 import {useMount} from 'react-use';
-import {AnyObject, IDispatch} from '@/utils/interface';
+import {IDispatch} from '@/utils/interface';
 
-interface Props extends AnyObject {
-  
+interface Props {
+  project_id: string,
+  api_id: string,
+  onCancel(): void
 }
 const Preview:SFC<Props> = props => {
   const [data, setData] = useState('');
@@ -19,7 +21,7 @@ const Preview:SFC<Props> = props => {
         api_id
       }
     })
-    .then((res: AnyObject) => {
+    .then((res: any) => {
       setData(JSON.stringify(res.data, null, 4));
     });
   });

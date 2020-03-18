@@ -1,9 +1,10 @@
 import React, {SFC, useState} from 'react';
 import {Button, Select, message, Form, Input, Row, Col, Card} from 'antd';
+import {FormComponentProps} from 'antd/es/form';
 import { useDispatch } from 'dva';
 import router from 'umi/router';
 import MonacoEditor from 'react-monaco-editor';
-import {AnyObject, IDispatch} from '@/utils/interface';
+import {IDispatch, RouterMatch} from '@/utils/interface';
 import styles from './index.css';
 import { useMount } from 'react-use';
 
@@ -11,10 +12,15 @@ const FormItem = Form.Item;
 const {Option} = Select;
 const typeList = ['get', 'post', 'delete', 'put', 'patch'];
 
-interface Props extends AnyObject {}
+interface Props extends FormComponentProps {
+  match: RouterMatch<{
+    project_id: string,
+    api_id: string
+  }>
+}
 
 const Editor:SFC<Props> = props => {
-  const [data, setData]: [AnyObject, Function] = useState({});
+  const [data, setData]: [any, Function] = useState({});
   const dispatch: IDispatch = useDispatch();
   const {form: {validateFields,getFieldDecorator}, match} = props;
   const {project_id, api_id} = match.params;
@@ -28,13 +34,13 @@ const Editor:SFC<Props> = props => {
           api_id
         }
       })
-      .then((res: AnyObject) => {
+      .then((res: any) => {
         setData(res.data);
       });
     }
   });
 
-  // 代码发送变化
+  // 代码变化
   function changeCode (val: string) {
     setData({
       ...data,
@@ -44,7 +50,7 @@ const Editor:SFC<Props> = props => {
 
   // 提交
   function submit () {
-    validateFields((err: ErrorEvent, values: AnyObject) => {
+    validateFields((err, values: object) => {
       if (err) {
         return;
       }

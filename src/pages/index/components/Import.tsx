@@ -1,6 +1,6 @@
 import React, {SFC, useState} from 'react';
 import {Upload, Modal, Icon, message, List, Typography, Button, Card} from 'antd';
-import {AnyObject} from '@/utils/interface';
+import {UploadChangeParam} from 'antd/es/upload';
 import {uploadProjectUrl, fileDownload} from '@/services';
 const {Dragger} = Upload;
 const {Paragraph, Title} = Typography;
@@ -23,7 +23,7 @@ const ImportModal:SFC<Props> = props => {
   }
   
   // 上传文件发生变化
-  function uploadChange(info: AnyObject) {
+  function uploadChange(info: UploadChangeParam) {
     const { status, response } = info.file;
     if (status === 'done') {
       msgCancelLoading();

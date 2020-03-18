@@ -1,18 +1,20 @@
 import React, {SFC, useState} from 'react';
 import {Table, Button, message, Typography, Tag, Form, Input} from 'antd';
+import {ColumnProps} from 'antd/es/table';
+import {FormComponentProps} from 'antd/es/form';
 import { useDispatch } from 'dva';
 import {useMount} from 'react-use';
 import router from 'umi/router';
 import copy from 'copy-to-clipboard';
 import Preview from './components/Preview';
 import {useTable} from '@/utils/hooks';
-import {AnyObject,IDispatch} from '@/utils/interface';
+import {IDispatch,RouterMatch} from '@/utils/interface';
 import {exportApi} from '@/services/project';
 
 const {Text, Paragraph, Title} = Typography;
 
-function TypeTag({type}:{type:'get'|'post'|'delete'|'patch'|'put'}) {
-  const typeMap = {
+function TypeTag({type}: {type: string}) {
+  const typeMap: any = {
     get: 'blue',
     post: 'green',
     delete: 'red',
@@ -22,7 +24,13 @@ function TypeTag({type}:{type:'get'|'post'|'delete'|'patch'|'put'}) {
   return <Tag color={typeMap[type]}>{type}</Tag>
 }
 
-interface Props extends AnyObject {
+interface TableRecord {
+  id: string,
+  url: string
+}
+
+interface Props extends FormComponentProps {
+  match: RouterMatch<{project_id: string}>
 }
 
 const List:SFC<Props> = props => {
@@ -37,15 +45,15 @@ const List:SFC<Props> = props => {
     pageSize: 5
   });
   
-  const [meta, setMeta]: [AnyObject, Function] = useState({});
+  const [meta, setMeta]: [any, Function] = useState({});
   const [previewModalVisible, togglePreviewModalVisible] = useState(false);
   const [api_id, setApiId] = useState('');
   
-  const columns = [
+  const columns: ColumnProps<TableRecord>[] = [
     {
       title: '名称',
       dataIndex: 'title',
-      width: '25%'
+      width: '25%',
     },
     {
       title: '地址',
@@ -60,7 +68,7 @@ const List:SFC<Props> = props => {
     },
     {
       title: '操作',
-      render: (text: string, record: AnyObject) => (
+      render: (text, record) => (
         <div className="table-opr-wrap">
           <Button type="primary" size="small" onClick={() => {edit(record.id)}}>编辑</Button>
           <Button type="primary" size="small" onClick={() => {preview(record.id)}}>预览</Button>

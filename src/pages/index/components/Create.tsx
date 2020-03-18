@@ -1,9 +1,9 @@
-import React, {SFC, useState, useEffect} from 'react';
+import React, {SFC, useState} from 'react';
 import {Form, Modal, Button, Input, message} from 'antd';
 import { useDispatch } from 'dva';
 import {useMount} from 'react-use';
 import { FormComponentProps } from 'antd/es/form';
-import {AnyObject, IDispatch} from '@/utils/interface';
+import {IDispatch} from '@/utils/interface';
 
 const FormItem = Form.Item;
 
@@ -15,7 +15,7 @@ interface Props extends FormComponentProps {
 const CreateModal:SFC<Props> = props => {
   const {project_id, onCancel, form: {getFieldDecorator, validateFields}} = props;
   const dispatch: IDispatch = useDispatch();
-  const [data, setData]: [AnyObject, Function] = useState({});
+  const [data, setData]: [any, Function] = useState({});
   const preTitle = project_id ? '修改' : '添加';
 
   useMount(() => {
@@ -26,7 +26,7 @@ const CreateModal:SFC<Props> = props => {
           project_id
         }
       })
-      .then((res: AnyObject) => {
+      .then((res: any) => {
         setData(res.data);
       })
     }

@@ -7,7 +7,7 @@ const service = axios.create({
 });
 service.interceptors.response.use(
   (response: any) => response.data,
-  (error: ErrorEvent) => Promise.reject(error)
+  error => Promise.reject(error)
 );
 
 export default service;

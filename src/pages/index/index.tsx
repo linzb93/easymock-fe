@@ -1,27 +1,24 @@
-import React, {SFC, useState, ReactNode} from 'react';
+import React, {SFC, useState} from 'react';
 import {Table, Button, message} from 'antd';
+import {ColumnProps} from 'antd/es/table';
 import { useDispatch } from 'dva';
 import {useMount} from 'react-use';
 import CreateModal from './components/Create';
 import ImportModal from './components/Import';
+import Origin from './components/Origin';
 import {Link} from 'react-router-dom';
 import {IDispatch} from '@/utils/interface';
 
-interface TableItem {
-  title: string,
-  dataIndex?: string,
-  key?: string,
-  render?: (text: string, record: {project_id: string}) => ReactNode
-}
-
 const Index:SFC = () => {
-  const [createModalVisible, toggleCreateModalVisible] = useState(false); // 创建弹窗显示
-  const [importModalVisible, toggleImportModalVisible] = useState(false); // 导入弹窗显示
+  const [createModalVisible, setCreateModalVisible] = useState(false); // 创建弹窗显示
+  const [importModalVisible, setImportModalVisible] = useState(false); // 导入弹窗显示
   const [data, setData] = useState([]); // table数据
   const dispatch: IDispatch = useDispatch();
   const [project_id, setProjectId] = useState(''); // project_id
 
-  const columns:TableItem[] = [
+  const columns:ColumnProps<{
+    project_id: string
+  }>[] = [
     {
       title: '名称',
       dataIndex: 'title',
@@ -64,7 +61,7 @@ const Index:SFC = () => {
 
   // 编辑
   function edit(id: string) {
-    toggleCreateModalVisible(true);
+    setCreateModalVisible(true);
     setProjectId(id);
   }
 
@@ -85,9 +82,9 @@ const Index:SFC = () => {
   // 弹窗关闭
   function changeModalVisible(name: 'create' | 'import', reloaded: boolean) {
     if (name === 'create') {
-      toggleCreateModalVisible(false);
+      setCreateModalVisible(false);
     } else if (name === 'import') {
-      toggleImportModalVisible(false);
+      setImportModalVisible(false);
     }
     if (reloaded) {
       getProjectList();
@@ -97,8 +94,8 @@ const Index:SFC = () => {
   return (
     <div className="wrapper">
       <div className="table-filter">
-        <Button type="primary" onClick={() => {toggleCreateModalVisible(true);}}>添加项目</Button>
-        <Button type="primary" onClick={() => {toggleImportModalVisible(true);}}>导入项目</Button>
+        <Button type="primary" onClick={() => {setCreateModalVisible(true);}}>添加项目</Button>
+        <Button type="primary" onClick={() => {setImportModalVisible(true);}}>导入项目</Button>
       </div>
       <Table
         columns={columns}
@@ -118,6 +115,8 @@ const Index:SFC = () => {
           onCancel={(reloaded: boolean) => {changeModalVisible('import', reloaded)}}
         />
       )}
+      <Origin />
+      <Origin />
     </div>
   )
 }

@@ -1,20 +1,35 @@
-import { Effect } from 'dva';
-
-export interface AnyObject {
-  [propName: string]: any;
-}
+import { AnyAction } from 'redux';
+import {EffectsCommandMap} from 'dva';
 
 // redux modal
+interface PromiseFunc {
+  (arg?:any): Promise<any>
+}
+interface EffectsCommandMapExtends extends EffectsCommandMap {
+  call(request: PromiseFunc, payload?:any): Promise<any>,
+  put(arg: SagaDispatch): void
+}
 export interface ModelType {
   namespace: string;
   state: object;
   effects: {
-    [name: string]: Effect;
+    [name: string]: (action: AnyAction, effects: EffectsCommandMapExtends) => void;
   };
-  reducers: object
+  reducers: {
+    [name: string]: (state: object, payload?:any) =>object
+  }
 }
 
 // 组件里面的dispatch
+interface SagaDispatch {
+  type: string,
+  payload?: object
+}
 export interface IDispatch {
-  ({type, payload}: {type: string, payload?: object}): Promise<object>
+  (arg: SagaDispatch): Promise<object>
+}
+
+// router
+export interface RouterMatch<T> {
+  params: T
 }

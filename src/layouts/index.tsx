@@ -1,5 +1,5 @@
 import React, {Fragment} from 'react';
-import styles from './index.css';
+import './index.css';
 
 const BasicLayout: React.FC = props => {
   return <Fragment>{props.children}</Fragment>

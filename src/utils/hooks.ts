@@ -1,9 +1,9 @@
 import {useMount, useSetState} from 'react-use';
 import {useDispatch} from 'dva';
-import {AnyObject, IDispatch} from './interface';
+import {IDispatch} from './interface';
 
 // Table hook
-export function useTable(option: AnyObject) {
+export function useTable(option: any) {
   const dispatch: IDispatch = useDispatch();
   const [data, setData] = useSetState({
     loading: true,
