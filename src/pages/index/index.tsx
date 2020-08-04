@@ -5,7 +5,6 @@ import { useDispatch } from 'dva';
 import {useMount} from 'react-use';
 import CreateModal from './components/Create';
 import ImportModal from './components/Import';
-import Origin from './components/Origin';
 import {Link} from 'react-router-dom';
 import {IDispatch} from '@/utils/interface';
 
@@ -14,16 +13,16 @@ const Index:SFC = () => {
   const [importModalVisible, setImportModalVisible] = useState(false); // 导入弹窗显示
   const [data, setData] = useState([]); // table数据
   const dispatch: IDispatch = useDispatch();
-  const [project_id, setProjectId] = useState(''); // project_id
+  const [id, setId] = useState(''); // project id
 
   const columns:ColumnProps<{
-    project_id: string
+    id: string
   }>[] = [
     {
       title: '名称',
-      dataIndex: 'title',
+      dataIndex: 'name',
       render: (text, record) => (
-        <Link to={`/project/${record.project_id}`}>{text}</Link>
+        <Link to={`/project/${record.id}`}>{text}</Link>
       )
     },
     {
@@ -38,8 +37,8 @@ const Index:SFC = () => {
       title: '操作',
       render: (_, record) => (
         <div className="table-opr-wrap">
-          <Button type="primary" size="small" onClick={() => {edit(record.project_id)}}>编辑</Button>
-          <Button type="danger" size="small" onClick={() => {deleteItem(record.project_id)}}>删除</Button>
+          <Button type="primary" size="small" onClick={() => {edit(record.id)}}>编辑</Button>
+          <Button type="danger" size="small" onClick={() => {deleteItem(record.id)}}>删除</Button>
         </div>
       )
     }
@@ -62,7 +61,7 @@ const Index:SFC = () => {
   // 编辑
   function edit(id: string) {
     setCreateModalVisible(true);
-    setProjectId(id);
+    setId(id);
   }
 
   // 删除
@@ -70,12 +69,16 @@ const Index:SFC = () => {
     dispatch({
       type: 'index/deleteProject',
       payload: {
-        project_id: id
+        id
       }
     })
-    .then(() => {
-      message.success('删除成功');
-      getProjectList();
+    .then((res: any) => {
+      if (res.data) {
+        message.success('删除成功');
+        getProjectList();
+      } else {
+        message.error(res.message);
+      }
     });
   }
 
@@ -101,13 +104,13 @@ const Index:SFC = () => {
         columns={columns}
         dataSource={data}
         pagination={false}
-        rowKey="project_id"
+        rowKey="id"
         bordered
       />
       {createModalVisible && (
         <CreateModal
           onCancel={(reloaded: boolean) => {changeModalVisible('create', reloaded)}}
-          project_id={project_id}
+          id={id}
         />
       )}
       {importModalVisible && (
@@ -115,8 +118,6 @@ const Index:SFC = () => {
           onCancel={(reloaded: boolean) => {changeModalVisible('import', reloaded)}}
         />
       )}
-      <Origin />
-      <Origin />
     </div>
   )
 }

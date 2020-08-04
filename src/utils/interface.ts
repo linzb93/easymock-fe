@@ -1,6 +1,10 @@
 import { AnyAction } from 'redux';
 import {EffectsCommandMap} from 'dva';
 
+export interface AnyObject {
+  [key: string]: any
+}
+
 // redux modal
 interface PromiseFunc {
   (arg?:any): Promise<any>

@@ -1,15 +1,15 @@
 import React, {SFC, useState} from 'react';
-import {Table, Button, message, Typography, Tag, Form, Input} from 'antd';
+import {Table, Button, message, Typography, Tag, Form} from 'antd';
 import {ColumnProps} from 'antd/es/table';
 import {FormComponentProps} from 'antd/es/form';
 import { useDispatch } from 'dva';
 import {useMount} from 'react-use';
 import router from 'umi/router';
 import copy from 'copy-to-clipboard';
-import Preview from './components/Preview';
-import {useTable} from '@/utils/hooks';
+import useTable from '@/utils/hooks/useTable';
 import {IDispatch,RouterMatch} from '@/utils/interface';
 import {exportApi} from '@/services/project';
+import {port} from '@/utils/request';
 
 const {Text, Paragraph, Title} = Typography;
 
@@ -34,7 +34,7 @@ interface Props extends FormComponentProps {
 }
 
 const List:SFC<Props> = props => {
-  const {form: {getFieldsValue, getFieldDecorator}, match} = props;
+  const {match} = props;
   const {project_id} = match.params;
   const dispatch: IDispatch = useDispatch();
   const { fresh, search, ...tableProps } = useTable({
@@ -46,13 +46,11 @@ const List:SFC<Props> = props => {
   });
   
   const [meta, setMeta]: [any, Function] = useState({});
-  const [previewModalVisible, togglePreviewModalVisible] = useState(false);
-  const [api_id, setApiId] = useState('');
   
   const columns: ColumnProps<TableRecord>[] = [
     {
       title: '名称',
-      dataIndex: 'title',
+      dataIndex: 'name',
       width: '25%',
     },
     {
@@ -71,7 +69,6 @@ const List:SFC<Props> = props => {
       render: (text, record) => (
         <div className="table-opr-wrap">
           <Button type="primary" size="small" onClick={() => {edit(record.id)}}>编辑</Button>
-          <Button type="primary" size="small" onClick={() => {preview(record.id)}}>预览</Button>
           <Button type="primary" size="small" onClick={() => {clone(record.id)}}>克隆</Button>
           <Button type="primary" size="small" onClick={() => {copyToClipboard(record.url)}}>复制接口地址</Button>
           <Button type="danger" size="small" onClick={() => {deleteItem(record.id)}}>删除</Button>
@@ -84,7 +81,7 @@ const List:SFC<Props> = props => {
     dispatch({
       type: 'index/getProjectDetail',
       payload: {
-        project_id
+        id: project_id
       }
     })
     .then((res: any) => {
@@ -97,7 +94,7 @@ const List:SFC<Props> = props => {
 
   // 复制项目地址
   function copyToClipboard (url: string) {
-    copy(`${window.location.hostname}:4000/mock/${meta.prefix}${url}`);
+    copy(`${window.location.hostname}:${port}/mock/${meta.prefix}${url}`);
     message.success('接口复制成功');
   }
 
@@ -124,12 +121,6 @@ const List:SFC<Props> = props => {
       message.success('删除成功');
       fresh();
     })
-  }
-
-  // 预览接口
-  function preview (api_id: string) {
-    togglePreviewModalVisible(true);
-    setApiId(api_id);
   }
 
   // 复制接口
@@ -162,27 +153,11 @@ const List:SFC<Props> = props => {
     }
   }
 
-  // 提交
-  function submit(e: any) {
-    e.preventDefault();
-    search(getFieldsValue());
-  }
-
   return (
     <div className="wrapper">
       <Title style={{marginTop: 20}}>{meta.title}</Title>
-      <Paragraph>接口前缀：<Text copyable>{`http://${window.location.hostname}:4000/mock/${meta.prefix}`}</Text></Paragraph>
+      <Paragraph>接口前缀：<Text copyable>{`http://${window.location.hostname}:${port}/mock/${meta.prefix}`}</Text></Paragraph>
       <Paragraph>项目id：{project_id}</Paragraph>
-      <Form onSubmit={submit}>
-        <Form.Item label="测试输入">
-          {getFieldDecorator('name')(
-            <Input style={{width: 200}} />
-          )}
-        </Form.Item>
-        <Form.Item>
-          <Button htmlType="submit">提交</Button>
-        </Form.Item>
-      </Form>
       <div className="table-filter">
         <Button type="primary" onClick={add}>添加接口</Button>
         <Button type="primary" onClick={exportProject}>导出接口</Button>
@@ -192,13 +167,6 @@ const List:SFC<Props> = props => {
         rowKey="id"
         {...tableProps}
       />
-      {previewModalVisible && (
-        <Preview
-          project_id={project_id}
-          api_id={api_id}
-          onCancel={() => {togglePreviewModalVisible(false)}}
-        />
-      )}
     </div>
   )
 }

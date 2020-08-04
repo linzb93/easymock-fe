@@ -1,29 +1,32 @@
 import React, {SFC, useState} from 'react';
-import {Form, Modal, Button, Input, message} from 'antd';
+import {Form, Modal, Button, Input, message, Tag} from 'antd';
 import { useDispatch } from 'dva';
 import {useMount} from 'react-use';
 import { FormComponentProps } from 'antd/es/form';
 import {IDispatch} from '@/utils/interface';
+import CollaboratorManage from './CollaboratorManage';
 
 const FormItem = Form.Item;
 
 interface Props extends FormComponentProps {
-  project_id?: string,
+  id?: string,
   onCancel(b?: boolean): void
 };
 
 const CreateModal:SFC<Props> = props => {
-  const {project_id, onCancel, form: {getFieldDecorator, validateFields}} = props;
+  const {id, onCancel, form: {getFieldDecorator, validateFields}} = props;
   const dispatch: IDispatch = useDispatch();
-  const [data, setData]: [any, Function] = useState({});
-  const preTitle = project_id ? '修改' : '添加';
+  const [data, setData]: [any, Function] = useState({
+    collaborators: ''
+  });
+  const preTitle = id ? '修改' : '添加';
 
   useMount(() => {
-    if (project_id) {
+    if (id) {
       dispatch({
         type: 'index/getProjectDetail',
         payload: {
-          project_id
+          id
         }
       })
       .then((res: any) => {
@@ -38,12 +41,12 @@ const CreateModal:SFC<Props> = props => {
       if (err) {
         return;
       }
-      if (project_id) {
+      if (id) {
         dispatch({
           type: 'index/updateProject',
           payload: {
             ...values,
-            project_id
+            id
           }
         })
         .then(() => {
@@ -75,14 +78,14 @@ const CreateModal:SFC<Props> = props => {
     >
       <Form>
         <FormItem label="标题">
-          {getFieldDecorator('title', {
+          {getFieldDecorator('name', {
             rules: [
               {
                 required: true,
                 message: '请输入标题'
               }
             ],
-            initialValue: data.title
+            initialValue: data.name
           })(
             <Input />
           )}
@@ -95,12 +98,21 @@ const CreateModal:SFC<Props> = props => {
           )}
         </FormItem>
         <FormItem label="简介">
-          {getFieldDecorator('desc', {
-            initialValue: data.desc
+          {getFieldDecorator('description', {
+            initialValue: data.description
           })(
             <Input />
           )}
         </FormItem>
+        {id && (
+          <FormItem label="协作者">
+            {getFieldDecorator('collaborators', {
+              initialValue: data.collaborators
+            })(
+              <CollaboratorManage />
+            )}
+          </FormItem>
+        )}
       </Form>
     </Modal>
   )

@@ -15,6 +15,10 @@ const config: IConfig =  {
           component: '../pages/index/index'
         },
         {
+          path: '/login',
+          component: '../pages/login'
+        },
+        {
           path: '/project/:project_id',
           component: '../pages/project',
         },
@@ -23,7 +27,7 @@ const config: IConfig =  {
           component: '../pages/project/create'
         },
         {
-          path: '/project/:project_id/update/:api_id',
+          path: '/project/:project_id/update/:id',
           component: '../pages/project/create'
         }
       ]

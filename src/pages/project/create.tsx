@@ -15,7 +15,7 @@ const typeList = ['get', 'post', 'delete', 'put', 'patch'];
 interface Props extends FormComponentProps {
   match: RouterMatch<{
     project_id: string,
-    api_id: string
+    id: string
   }>
 }
 
@@ -23,15 +23,15 @@ const Editor:SFC<Props> = props => {
   const [data, setData]: [any, Function] = useState({});
   const dispatch: IDispatch = useDispatch();
   const {form: {validateFields,getFieldDecorator}, match} = props;
-  const {project_id, api_id} = match.params;
+  const {project_id, id} = match.params;
 
   useMount(() => {
-    if (api_id) {
+    if (id) {
       dispatch({
         type: 'project/getApiDetail',
         payload: {
           project_id,
-          api_id
+          id
         }
       })
       .then((res: any) => {
@@ -64,7 +64,7 @@ const Editor:SFC<Props> = props => {
         message.error('代码格式不正确');
         return;
       }
-      if (!api_id) {
+      if (!id) {
         dispatch({
           type: 'project/createApi',
           payload: {
@@ -82,7 +82,7 @@ const Editor:SFC<Props> = props => {
           type: 'project/updateApi',
           payload: {
             project_id,
-            api_id,
+            id,
             ...values,
             code: data.code
           }
@@ -106,14 +106,14 @@ const Editor:SFC<Props> = props => {
         <Card className={styles['config-form-wrapper']}>
           <Form>
             <FormItem label="名称">
-              {getFieldDecorator('title', {
+              {getFieldDecorator('name', {
                 rules: [
                   {
                     required: true,
                     message: '请输入标题'
                   }
                 ],
-                initialValue: data.title
+                initialValue: data.name
               })(
                 <Input placeholder="请输入标题" />
               )}
