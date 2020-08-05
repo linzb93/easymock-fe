@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "start": "umi dev",
-    "build": "umi build && cp -R dist/* ../easymock-v2/src/app/assets/",
+    "build": "umi build",
     "test": "umi test",
     "lint": "eslint src/**/*.{ts,tsx} --fix",
     "precommit": "lint-staged"

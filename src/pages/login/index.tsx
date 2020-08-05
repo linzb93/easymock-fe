@@ -64,6 +64,7 @@ const Index:SFC<Props> = props => {
       Cookies.set('token', res.token);
       router.push('/');
       message.success('注册成功');
+      
     });
   }
 
