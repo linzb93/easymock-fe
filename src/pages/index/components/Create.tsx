@@ -3,7 +3,7 @@ import {Form, Modal, Button, Input, message, Tag} from 'antd';
 import { useDispatch } from 'dva';
 import {useMount} from 'react-use';
 import { FormComponentProps } from 'antd/es/form';
-import {IDispatch} from '@/utils/interface';
+import {IDispatch} from '@/utils/typings';
 import CollaboratorManage from './CollaboratorManage';
 
 const FormItem = Form.Item;
@@ -29,8 +29,8 @@ const CreateModal:SFC<Props> = props => {
           id
         }
       })
-      .then((res: any) => {
-        setData(res.data);
+      .then(({data}) => {
+        setData(data.data);
       })
     }
   });

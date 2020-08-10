@@ -1,4 +1,5 @@
 import { AnyAction } from 'redux';
+import {AxiosResponse} from 'axios';
 import {EffectsCommandMap} from 'dva';
 
 export interface AnyObject {
@@ -30,10 +31,17 @@ interface SagaDispatch {
   payload?: object
 }
 export interface IDispatch {
-  (arg: SagaDispatch): Promise<object>
+  (arg: SagaDispatch): Promise<Response>
 }
 
 // router
 export interface RouterMatch<T> {
   params: T
 }
+
+// response
+export type Response = AxiosResponse <{
+  message: string,
+  code?: string | number,
+  data?: any
+}>;

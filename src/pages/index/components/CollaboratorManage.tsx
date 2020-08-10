@@ -2,7 +2,7 @@ import React, {SFC, useState} from 'react';
 import {Input, Tag, message} from 'antd';
 import {clone} from 'lodash';
 import { useDispatch } from 'dva';
-import {IDispatch} from '@/utils/interface';
+import {IDispatch} from '@/utils/typings';
 
 interface Props {
   value?: any,
@@ -27,11 +27,11 @@ const CollaboratorManage:SFC<Props> = props => {
         excludeCurUser: true
       }
     })
-    .then((res: any) => {
-      if (res.data) {
+    .then(({data}) => {
+      if (data.data) {
         onChange(cols.concat(val).join(','));
       } else {
-        message.error(res.message);
+        message.error(data.message);
       }
       setInputVal('');
     })

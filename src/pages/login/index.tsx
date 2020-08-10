@@ -4,7 +4,7 @@ import {FormComponentProps} from 'antd/es/form';
 import router from 'umi/router';
 import { useDispatch } from 'dva';
 import Cookies from 'js-cookie';
-import {IDispatch} from '@/utils/interface';
+import {IDispatch} from '@/utils/typings';
 import styles from './index.css';
 
 interface Props extends FormComponentProps {}
@@ -33,9 +33,9 @@ const Index:SFC<Props> = props => {
         type: 'user/login',
         payload: values
       })
-      .then((res: any) => {
+      .then(({data}) => {
         // 如果账号不存在
-        if (res.code === 2) {
+        if (data.code === 2) {
           Modal.confirm({
             title: '提示',
             content: '账号不存在，是否注册一个新账号？',
@@ -43,10 +43,10 @@ const Index:SFC<Props> = props => {
               makeRegister(values);
             }
           });
-        } else if (res.code === 1) {
+        } else if (data.code === 1) {
           message.error('密码错误');
         } else {
-          Cookies.set('token', res.token);
+          Cookies.set('token', data.data.token);
           router.push('/');
           message.success('登录成功');
         }
@@ -60,8 +60,8 @@ const Index:SFC<Props> = props => {
       type: 'user/register',
       payload: values
     })
-    .then((res: any) => {
-      Cookies.set('token', res.token);
+    .then(({data}) => {
+      Cookies.set('token', data.data.token);
       router.push('/');
       message.success('注册成功');
       

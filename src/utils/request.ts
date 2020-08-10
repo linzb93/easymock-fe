@@ -10,7 +10,7 @@ export const baseURL: string = process.env.NODE_ENV === 'development' ? `http://
 const service = axios.create({
   baseURL
 });
-service.interceptors.request.use(function (config) {
+service.interceptors.request.use(config => {
   config.headers['token'] = Cookies.get('token');
   return config;
 }, function (error) {
@@ -18,7 +18,7 @@ service.interceptors.request.use(function (config) {
 });
 
 service.interceptors.response.use(
-  (response: any) => response.data,
+  r => r,
   error => {
     const {data} = error.response;
     if (data.code === 'TOKEN_OVERDUE') {

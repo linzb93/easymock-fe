@@ -1,5 +1,5 @@
 import {useMount, useSetState} from 'react-use';
-import {AnyObject} from '../interface';
+import {AnyObject} from '../typings';
 import useFetch from './useFetch';
 
 // Table hook

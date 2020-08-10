@@ -6,7 +6,7 @@ import {useMount} from 'react-use';
 import CreateModal from './components/Create';
 import ImportModal from './components/Import';
 import {Link} from 'react-router-dom';
-import {IDispatch} from '@/utils/interface';
+import {IDispatch} from '@/utils/typings';
 
 const Index:SFC = () => {
   const [createModalVisible, setCreateModalVisible] = useState(false); // 创建弹窗显示
@@ -53,8 +53,8 @@ const Index:SFC = () => {
     dispatch({
       type: 'index/getProjectList'
     })
-    .then((res: any) => {
-      setData(res.data);
+    .then(({data}) => {
+      setData(data.data);
     });
   }
 
@@ -72,12 +72,12 @@ const Index:SFC = () => {
         id
       }
     })
-    .then((res: any) => {
-      if (res.data) {
+    .then(({data}) => {
+      if (data.data) {
         message.success('删除成功');
         getProjectList();
       } else {
-        message.error(res.message);
+        message.error(data.message);
       }
     });
   }

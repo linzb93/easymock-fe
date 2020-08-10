@@ -1,4 +1,4 @@
-import { ModelType } from '@/utils/interface';
+import { ModelType } from '@/utils/typings';
 import * as indexService from '@/services';
 
 /**

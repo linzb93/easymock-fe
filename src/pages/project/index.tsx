@@ -7,7 +7,7 @@ import {useMount} from 'react-use';
 import router from 'umi/router';
 import copy from 'copy-to-clipboard';
 import useTable from '@/utils/hooks/useTable';
-import {IDispatch,RouterMatch} from '@/utils/interface';
+import {IDispatch,RouterMatch} from '@/utils/typings';
 import {exportApi} from '@/services/project';
 import {port} from '@/utils/request';
 
@@ -84,10 +84,10 @@ const List:SFC<Props> = props => {
         id: project_id
       }
     })
-    .then((res: any) => {
+    .then(({data}) => {
       setMeta({
-        ...res.data,
-        prefix: `${project_id}${res.data.prefix}`
+        ...data.data,
+        prefix: `${project_id}${data.data.prefix}`
       });
     });
   });

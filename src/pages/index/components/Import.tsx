@@ -28,7 +28,7 @@ const ImportModal:SFC<Props> = props => {
     const { status, response } = info.file;
     if (status === 'done') {
       msgCancelLoading();
-      if (response.data.success) {
+      if (response.code === 'SUCCESS') {
         setErrorList([]);
         message.success('文件上传成功');
         onCancel(true);
@@ -39,22 +39,6 @@ const ImportModal:SFC<Props> = props => {
     } else if (status === 'error') {
       msgCancelLoading();
       message.error(`文件上传失败`);
-    }
-  }
-
-  // 文件下载
-  function filedl(fileName: string) {
-    const url = fileDownload({
-      fileName
-    });
-    let ifr = document.getElementById('temp-download-iframe') as HTMLIFrameElement;
-    if (ifr) {
-      ifr.src = url;
-    } else {
-      let iframe = document.createElement('iframe');
-      iframe.src = url;
-      iframe.id = 'temp-download-iframe';
-      document.getElementsByTagName('head')[0].appendChild(iframe);
     }
   }
 

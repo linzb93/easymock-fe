@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {useDispatch} from 'dva';
-import {AnyObject} from '../interface';
-import {IDispatch} from '../interface';
+import {AnyObject} from '../typings';
+import {IDispatch} from '../typings';
 
 export default function useFetch(type: string) {
   const dispatch: IDispatch = useDispatch();

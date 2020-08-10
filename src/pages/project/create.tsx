@@ -4,7 +4,7 @@ import {FormComponentProps} from 'antd/es/form';
 import { useDispatch } from 'dva';
 import router from 'umi/router';
 import MonacoEditor from 'react-monaco-editor';
-import {IDispatch, RouterMatch} from '@/utils/interface';
+import {IDispatch, RouterMatch} from '@/utils/typings';
 import styles from './index.css';
 import { useMount } from 'react-use';
 
@@ -34,8 +34,8 @@ const Editor:SFC<Props> = props => {
           id
         }
       })
-      .then((res: any) => {
-        setData(res.data);
+      .then(({data}) => {
+        setData(data.data);
       });
     }
   });
